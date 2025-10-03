@@ -1,4 +1,5 @@
 import bombard
+from bombard import bombard
 import asyncio
 
 
@@ -23,7 +24,15 @@ async def main():
         print(e)
 
 
-asyncio.run(main())
+@bombard(num=10)
+async def nate():
+    await asyncio.sleep(1)
+    print("nate")
+
+async def foo():
+    await nate()
+
+asyncio.run(foo())
 
 
 # OBJECTIVE:
