@@ -7,7 +7,7 @@ def bombard(num: int = 1):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             coroutines = [func(*args, **kwargs) for _ in range(num)]
-            return await _bombard.rust_select_ok(coroutines)
+            return await _bombard.select_ok(coroutines)
 
         return wrapper
 

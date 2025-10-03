@@ -22,7 +22,7 @@ fn rust_select<'py>(
 }
 
 #[pyfunction]
-fn rust_select_ok<'a>(py: Python<'a>, coros: Vec<Bound<'a, PyAny>>) -> PyResult<Bound<'a, PyAny>> {
+fn select_ok<'a>(py: Python<'a>, coros: Vec<Bound<'a, PyAny>>) -> PyResult<Bound<'a, PyAny>> {
     // Need to collect, otherwise async move can't take ownership of an iter which may be awaken
     // on different threads as `c` is !Send, and pyfunctions don't tolerate trait bounds
     let futures: Vec<_> = coros
@@ -69,6 +69,6 @@ fn rust_select_ok<'a>(py: Python<'a>, coros: Vec<Bound<'a, PyAny>>) -> PyResult<
 #[pymodule]
 #[pyo3(name = "bombard")]
 fn my_async_module(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(rust_select_ok, m)?)?;
+    m.add_function(wrap_pyfunction!(select_ok, m)?)?;
     Ok(())
 }
