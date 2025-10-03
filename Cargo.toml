@@ -1,0 +1,14 @@
+[package]
+name = "bombard"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "bombard"
+crate-type = ["cdylib"]
+
+[dependencies]
+futures = "0.3.31"
+pyo3 = { version = "0.26.0", features = ["extension-module"] }
+pyo3-async-runtimes = { version = "0.26", features = ["attributes", "tokio-runtime"] }
+tokio = { version = "1.47", features=["macros"] }
