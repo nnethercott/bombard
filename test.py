@@ -1,6 +1,6 @@
-import bombard
 from bombard import bombard
 import asyncio
+import random
 
 
 async def fail(i):
@@ -10,32 +10,40 @@ async def fail(i):
 
 
 async def ok():
-    await asyncio.sleep(1)
+    await asyncio.sleep(2)
     print("ok")
 
 
+# this is an example of why asyncio.wait is bad!
 async def main():
-    # await bombard.rust_select_ok([fail(3), ok()])
-    # await asyncio.gather(*[fail(), ok()])
     try:
-        coros = map(asyncio.Task, [fail(0), ok()])
-        await asyncio.wait(coros, return_when=asyncio.FIRST_COMPLETED)
+        coroutines = map(asyncio.Task, [fail(0), ok()])
+        await asyncio.wait(coroutines, return_when=asyncio.FIRST_COMPLETED)
     except RuntimeError as e:
         print(e)
 
 
+async def random_sleep():
+    t = random.randint(1, 10)
+    await asyncio.sleep(t)
+    print(t)
+
+
 @bombard(num=10)
 async def nate():
-    await asyncio.sleep(1)
-    print("nate")
+    await random_sleep()
+
 
 async def foo():
     await nate()
 
+
+async def bar():
+    await asyncio.gather(*[random_sleep() for _ in range(10)])
+
+
+print("running select_ok")
 asyncio.run(foo())
 
-
-# OBJECTIVE:
-# @bombard(n_concurrent=5)
-# async def foo():
-#   await pass
+print("running asyncio.gather")
+asyncio.run(bar())

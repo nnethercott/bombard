@@ -1,10 +1,5 @@
-use std::ffi::{c_char, CStr};
-
 use futures::future;
-use pyo3::{
-    prelude::*,
-    types::{PyCFunction, PyDict, PyTuple},
-};
+use pyo3::prelude::*;
 use pyo3_async_runtimes::tokio::future_into_py;
 
 // an example
@@ -69,10 +64,11 @@ fn rust_select_ok<'a>(py: Python<'a>, coros: Vec<Bound<'a, PyAny>>) -> PyResult<
 //     PyCFunction::new_closure(py, None, None, wrapper)
 // }
 
+// TODO: read how to add select ok to internals mod  ('bombard.internals._rust_select_ok')
+
 #[pymodule]
 #[pyo3(name = "bombard")]
 fn my_async_module(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(rust_select_ok, m)?)?;
-    m.add_function(wrap_pyfunction!(bombard, m)?)?;
     Ok(())
 }
