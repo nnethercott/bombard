@@ -1,6 +1,12 @@
 # bombard
 Python bindings for rust's [select_ok](https://docs.rs/futures/latest/futures/future/fn.select_ok.html) macro.
 
+## Install 
+`bombardx`can be installed direcly from PyPI with :
+```
+uv pip install bombardx
+```
+
 ## Motivation
 Async Python currently lacks primitives for polling coroutines until the _first success_. Bombard is useful in situations where users spawn concurrent tasks which may err, but only care that at least one of them completes.
 
@@ -67,3 +73,4 @@ async def fallible():
     return t
   raise RuntimeError(t)
 ```
+
