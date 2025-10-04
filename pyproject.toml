@@ -1,3 +1,11 @@
+[project]
+name = "bombard"
+version = "0.1.0"
+description = "select_ok semantics in python"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
 [build-system]
 requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
