@@ -22,10 +22,10 @@ fn rust_select<'py>(
 }
 
 #[pyfunction]
-fn select_ok<'a>(py: Python<'a>, coros: Vec<Bound<'a, PyAny>>) -> PyResult<Bound<'a, PyAny>> {
+fn select_ok<'a>(py: Python<'a>, coroutines: Vec<Bound<'a, PyAny>>) -> PyResult<Bound<'a, PyAny>> {
     // Need to collect, otherwise async move can't take ownership of an iter which may be awaken
     // on different threads as `c` is !Send, and pyfunctions don't tolerate trait bounds
-    let futures: Vec<_> = coros
+    let futures: Vec<_> = coroutines
         .into_iter()
         .map(|c| {
             let fut = pyo3_async_runtimes::tokio::into_future(c).unwrap();
