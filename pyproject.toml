@@ -1,5 +1,5 @@
 [project]
-name = "bombard"
+name = "bombardx"
 version = "0.1.0"
 description = "select_ok semantics in python"
 readme = "README.md"

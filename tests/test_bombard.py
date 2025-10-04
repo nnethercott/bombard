@@ -1,6 +1,6 @@
 import asyncio
 import pytest
-import bombard
+from bombardx import select_ok, bombard
 
 
 async def fail():
@@ -20,14 +20,14 @@ async def ok():
 
 @pytest.mark.asyncio
 async def test_select_ok_works():
-    res = await bombard.select_ok(ok(), fail())
+    res = await select_ok(ok(), fail())
     assert res is True
 
 
 @pytest.mark.asyncio
 async def test_select_ok_fails_properly():
     with pytest.raises(RuntimeError):
-        await bombard.select_ok(fail_after(0), fail_after(1))
+        await select_ok(fail_after(0), fail_after(1))
 
 
 @pytest.mark.asyncio
@@ -40,7 +40,7 @@ async def test_decorator_spawns_right_num_tasks():
         atomic_count += 1
         return
 
-    bar = bombard.bombard(5)(foo)
+    bar = bombard(5)(foo)
     await bar()
 
     assert atomic_count == 5
@@ -48,9 +48,9 @@ async def test_decorator_spawns_right_num_tasks():
 
 @pytest.mark.asyncio
 async def test_composed_logic():
-    bombarded = bombard.bombard(num=5)(ok)
+    bombarded = bombard(num=5)(ok)
 
     # see if anything weird happens with this
     await asyncio.gather(bombarded(), ok())
-    await bombard.select_ok(bombarded(), fail())
+    await select_ok(bombarded(), fail())
     assert True

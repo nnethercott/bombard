@@ -28,7 +28,7 @@ fn _select<'py>(coro1: Bound<'py, PyAny>, coro2: Bound<'py, PyAny>) -> PyResult<
 /// Example:
 /// ```python
 /// import asyncio
-/// import bombard
+/// import bombardx
 ///
 /// async def ok():
 ///     await asyncio.sleep(1)
@@ -37,7 +37,7 @@ fn _select<'py>(coro1: Bound<'py, PyAny>, coro2: Bound<'py, PyAny>) -> PyResult<
 /// async def fail():
 ///     raise RuntimeError
 ///
-/// _ = bombard.select_ok(ok(), fail())
+/// _ = bombardx.select_ok(ok(), fail())
 /// ```
 fn select_ok<'a>(py: Python<'a>, coroutines: &Bound<'a, PyTuple>) -> PyResult<Bound<'a, PyAny>> {
     // Need to collect, otherwise async move can't take ownership of an iter which may be awaken
@@ -82,7 +82,7 @@ fn select_ok<'a>(py: Python<'a>, coroutines: &Bound<'a, PyTuple>) -> PyResult<Bo
 // }
 
 #[pymodule]
-#[pyo3(name = "bombard")]
+#[pyo3(name = "bombardx")]
 /// Python bindings for rust's `futures::future::select_ok` function.
 fn my_async_module(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(select_ok, m)?)?;

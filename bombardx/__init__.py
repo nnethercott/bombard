@@ -1,15 +1,15 @@
 from functools import wraps
 from typing import Callable
-from bombard.bombard import select_ok
+from bombardx.bombardx import select_ok
 
 
 def bombard(num: int = 1):
     """
     A decorator spawning the wrapped function num-times and selecting the first result that is not an exception.
 
-    Example: 
-    ```python 
-    from bombard import bombard
+    Example:
+    ```python
+    from bombardx import bombard
     from pydantic import BaseModel
 
     class Model(BaseModel):
