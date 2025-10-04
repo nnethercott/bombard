@@ -37,11 +37,11 @@ Contrast the code above with :
 
 ```python
 import asyncio
-import bombardx # import Bombard
+from bombardx import select_ok
 
 async def main():
     try:
-        done = await bombardx.select_ok(fail(1), ok(2)) # <- select first successful
+        done = await select_ok(fail(1), ok(2)) # <- select first successful
     except RuntimeError as e:
         raise e
 
