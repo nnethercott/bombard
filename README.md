@@ -41,8 +41,7 @@ import bombard # import Bombard
 
 async def main():
     try:
-        tasks = [fail(1), ok(2)]
-        done = await bombard.select_ok(tasks) # <- select first successful
+        done = await bombard.select_ok(fail(1), ok(2)) # <- select first successful
     except RuntimeError as e:
         raise e
 

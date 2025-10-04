@@ -1,13 +1,12 @@
 use futures::future;
-use pyo3::prelude::*;
+use pyo3::{prelude::*, types::PyTuple};
 use pyo3_async_runtimes::tokio::future_into_py;
+
+use pyo3_stub_gen::{define_stub_info_gatherer, derive::gen_stub_pyfunction};
 
 // an example
 #[pyfunction]
-fn rust_select<'py>(
-    coro1: Bound<'py, PyAny>,
-    coro2: Bound<'py, PyAny>,
-) -> PyResult<Bound<'py, PyAny>> {
+fn _select<'py>(coro1: Bound<'py, PyAny>, coro2: Bound<'py, PyAny>) -> PyResult<Bound<'py, PyAny>> {
     let py = coro1.py();
     let fut1 = pyo3_async_runtimes::tokio::into_future(coro1)?;
     let fut2 = pyo3_async_runtimes::tokio::into_future(coro2)?;
@@ -21,8 +20,26 @@ fn rust_select<'py>(
     })
 }
 
+#[gen_stub_pyfunction]
 #[pyfunction]
-fn select_ok<'a>(py: Python<'a>, coroutines: Vec<Bound<'a, PyAny>>) -> PyResult<Bound<'a, PyAny>> {
+#[pyo3(signature=(*coroutines))]
+/// Polls passed coroutines until either one of them returns successfully, or all of them have failed.
+///
+/// Example:
+/// ```python
+/// import asyncio
+/// import bombard
+///
+/// async def ok():
+///     await asyncio.sleep(1)
+///     return
+///
+/// async def fail():
+///     raise RuntimeError
+///
+/// _ = bombard.select_ok(ok(), fail())
+/// ```
+fn select_ok<'a>(py: Python<'a>, coroutines: &Bound<'a, PyTuple>) -> PyResult<Bound<'a, PyAny>> {
     // Need to collect, otherwise async move can't take ownership of an iter which may be awaken
     // on different threads as `c` is !Send, and pyfunctions don't tolerate trait bounds
     let futures: Vec<_> = coroutines
@@ -40,35 +57,37 @@ fn select_ok<'a>(py: Python<'a>, coroutines: Vec<Bound<'a, PyAny>>) -> PyResult<
 }
 
 // #[pyfunction]
-// fn bombard(py: Python, num: usize) -> PyResult<Py<PyCFunction>> {
-//     // this is our wrapper
-//     let wrapper = move |py: Python, func: Py<PyCFunction>| -> PyResult<Py<PyCFunction>> {
-//         let f = move |args: &Bound<'_, PyTuple>,
-//                       kwargs: Option<&Bound<'_, PyDict>>|
-//               -> PyResult<Py<PyAny>> {
+// fn bombard<'a>(py: Python<'a>, num: usize) -> PyResult<Bound<'a, PyCFunction>> {
+//     let decorator = |args: &Bound<'_, PyTuple>,
+//                      _kwargs: Option<&Bound<'_, PyDict>>|
+//      -> PyResult<Bound<'a, PyCFunction>> {
+//         let unbound_func: Py<PyCFunction> = args.get_item(0)?.extract()?;
+//         let wrapper = move |args: &Bound<'_, PyTuple>,
+//                             kwargs: Option<&Bound<'_, PyDict>>|
+//               -> PyResult<Bound<'_, PyAny>> {
+//             // Use `Python::attach` to get a `Python` object
 //             Python::attach(|py| {
+//                 let func = unbound_func.bind(py);
 //                 let coroutines: Vec<Bound<'_, PyAny>> =
-//                     std::iter::repeat_with(|| func.call(py, args, kwargs).unwrap().into_bound(py))
+//                     std::iter::repeat_with(|| func.call(args, kwargs).unwrap())
 //                         .take(num)
 //                         .collect();
-//
-//                 let selected = rust_select_ok(py, coroutines)?;
-//                 Ok(selected.unbind())
+//                 let selected = select_ok(py, coroutines)?;
+//                 Ok(selected)
 //             })
 //         };
-//
-//         let bound = PyCFunction::new_closure(py, None, None, f)?;
-//         Ok(bound.unbind())
+//         PyCFunction::new_closure(py, None, None, wrapper)
 //     };
-//
-//     PyCFunction::new_closure(py, None, None, wrapper)
+//     PyCFunction::new_closure(py, None, None, decorator)
 // }
-
-// TODO: read how to add select ok to internals mod  ('bombard.internals._rust_select_ok')
 
 #[pymodule]
 #[pyo3(name = "bombard")]
+/// Python bindings for rust's `futures::future::select_ok` function.
 fn my_async_module(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(select_ok, m)?)?;
     Ok(())
 }
+
+// Define a function to gather stub information.
+define_stub_info_gatherer!(stub_info);
