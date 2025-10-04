@@ -2,7 +2,7 @@
 Python bindings for rust's [select_ok](https://docs.rs/futures/latest/futures/future/fn.select_ok.html) macro.
 
 ## Install 
-`bombardx`can be installed direcly from PyPI with :
+`bombardx` can be installed direcly from PyPI with :
 ```
 uv pip install bombardx
 ```
@@ -73,4 +73,5 @@ async def fallible():
     return t
   raise RuntimeError(t)
 ```
+
 
