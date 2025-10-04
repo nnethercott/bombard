@@ -13,3 +13,8 @@ build-backend = "maturin"
 [tool.maturin]
 # "extension-module" tells pyo3 we want to build an extension module (skips linking against libpython.so)
 features = ["pyo3/extension-module"]
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio>=1.2.0",
+]
