@@ -4,7 +4,7 @@ Python bindings for rust's [select_ok](https://docs.rs/futures/latest/futures/fu
 ## Motivation
 Async Python currently lacks primitives for polling coroutines until the _first success_. Bombard is useful in situations where users spawn concurrent tasks which may err, but only care that at least one of them completes.
 
-Coroutines heavily dependent on network-induced latencies (e.g. gen-ai applications which aim for fault tolerance through concurrent http retries) can benefit from `bombard.select_ok()` to reduce wait times.
+Coroutines heavily dependent on network-induced latencies (e.g. gen-ai applications which aim for fault tolerance through concurrent http retries) can benefit from `bombardx.select_ok()` to reduce wait times.
 
 [`asyncio.wait`](https://docs.python.org/3/library/asyncio-task.html#waiting-primitives) gets close, but is unable to distinguish between an exception and a successful result as it simply returns the result of the first future completes:
 
@@ -37,11 +37,11 @@ Contrast the code above with :
 
 ```python
 import asyncio
-import bombard # import Bombard
+import bombardx # import Bombard
 
 async def main():
     try:
-        done = await bombard.select_ok(fail(1), ok(2)) # <- select first successful
+        done = await bombardx.select_ok(fail(1), ok(2)) # <- select first successful
     except RuntimeError as e:
         raise e
 
@@ -52,7 +52,7 @@ Bombard also abstracts `select_ok` through a `@bombard(num = ...)` decorator you
 
 ```python
 import random
-from bombard import bombard
+from bombardx import bombard
 
 async def random_sleep():
     """sleeps for a random amount of time and returns the duration"""
