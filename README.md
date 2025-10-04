@@ -9,7 +9,7 @@ Coroutines heavily dependent on network-induced latencies (e.g. gen-ai applicati
 [`asyncio.wait`](https://docs.python.org/3/library/asyncio-task.html#waiting-primitives) gets close, but is unable to distinguish between an exception and a successful result as it simply returns the result of the first future completes:
 
 ```python
-# some bad code 
+# some bad code
 import asyncio
 
 async def ok(i: int):
