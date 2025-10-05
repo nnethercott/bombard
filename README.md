@@ -12,7 +12,9 @@ Async Python currently lacks primitives for polling coroutines until the _first 
 
 Futures heavily dependent on network-induced latencies (e.g. gen-ai applications with concurrent http retries) can benefit from `bombardx.select_ok()` to reduce wait times.
 
-[`asyncio.wait`](https://docs.python.org/3/library/asyncio-task.html#waiting-primitives) gets close, but is unable to distinguish between an exception and a successful result as it simply returns the result of the first future completes:
+[`asyncio.wait`](https://docs.python.org/3/library/asyncio-task.html#waiting-primitives) gets close, but is unable to distinguish between an exception and a successful result as it simply returns the result of the first future that completes.
+
+For example:
 
 ```python
 # some bad code
@@ -28,12 +30,12 @@ async def fail():
 
 async def main():
     coroutines = [Task(fail()), Task(ok(1))]  # <- fail() completes before ok(1) !
-    done, _ = await asyncio.wait(*coroutines, return_when=asyncio.FIRST_COMPLETED)
+    done, pending = await asyncio.wait(*coroutines, return_when=asyncio.FIRST_COMPLETED)
 
 asyncio.run(main()) # raises a RuntimeError !
 ```
 
-You could roll your own `select_ok` by repeatedly awaiting `asyncio.wait` and updating `tasks` with `pending` until you've exhausted the list, but this is not ideal.
+You _could_ fix this by repeatedly awaiting `asyncio.wait` and updating `tasks` with `pending` until you've exhausted the list, but this is not ideal.
 
 Contrast the code above with :
 
@@ -42,10 +44,7 @@ import asyncio
 from bombardx import select_ok
 
 async def main():
-    try:
-        done = await select_ok(fail(), ok(2))
-    except RuntimeError as e:
-        raise e
+    return await select_ok(fail(), ok(1))
 
 asyncio.run(main()) # ignores runtime error and prints "ok" after 2 seconds
 ```
@@ -68,6 +67,10 @@ async def fallible():
   if random.random() < 0.5:
     return t
   raise RuntimeError(t)
+
+# spawns the future 10 times and selects the first successful run
+asyncio.run(fallible())
 ```
+
 
 
