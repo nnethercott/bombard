@@ -8,31 +8,27 @@ uv pip install bombardx
 ```
 
 ## Motivation
-Async Python currently lacks primitives for polling coroutines until the _first success_. Bombard is useful in situations where users spawn concurrent tasks which may err, but only care that at least one of them completes.
+Async Python currently lacks primitives for polling coroutines until the _first success_. Bombard is useful in situations where users spawn concurrent tasks which may fail, but only care that at least one of them completes.
 
-Coroutines heavily dependent on network-induced latencies (e.g. gen-ai applications which aim for fault tolerance through concurrent http retries) can benefit from `bombardx.select_ok()` to reduce wait times.
+Futures heavily dependent on network-induced latencies (e.g. gen-ai applications with concurrent http retries) can benefit from `bombardx.select_ok()` to reduce wait times.
 
 [`asyncio.wait`](https://docs.python.org/3/library/asyncio-task.html#waiting-primitives) gets close, but is unable to distinguish between an exception and a successful result as it simply returns the result of the first future completes:
 
 ```python
 # some bad code
 import asyncio
+from asyncio import Task
 
 async def ok(i: int):
   await asyncio.sleep(i)
   print("ok")
 
-async def err(i: int):
-  await asyncio.sleep(i)
+async def fail():
   raise RuntimeError("oops")
 
 async def main():
-    try:
-        tasks = [fail(1), ok(2)]
-        coroutines = map(asyncio.Task, tasks) # <- fail(1) completes before ok(2) !
-        done, pending = await asyncio.wait(coroutines, return_when=asyncio.FIRST_COMPLETED)
-    except RuntimeError as e:
-        raise e
+    coroutines = [Task(fail()), Task(ok(1))]  # <- fail() completes before ok(1) !
+    done, _ = await asyncio.wait(*coroutines, return_when=asyncio.FIRST_COMPLETED)
 
 asyncio.run(main()) # raises a RuntimeError !
 ```
@@ -47,7 +43,7 @@ from bombardx import select_ok
 
 async def main():
     try:
-        done = await select_ok(fail(1), ok(2)) # <- select first successful
+        done = await select_ok(fail(), ok(2))
     except RuntimeError as e:
         raise e
 
